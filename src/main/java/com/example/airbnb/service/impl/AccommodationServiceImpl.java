@@ -1,12 +1,14 @@
 package com.example.airbnb.service.impl;
 
 import com.example.airbnb.model.Accommodation;
+import com.example.airbnb.model.Country;
 import com.example.airbnb.model.Host;
 import com.example.airbnb.model.dto.AccommodationDTO;
 import com.example.airbnb.model.enumerations.Category;
 import com.example.airbnb.model.event.AccommodationCreatedEvent;
 import com.example.airbnb.model.event.AccommodationDeletedEvent;
 import com.example.airbnb.model.event.AccommodationEditedEvent;
+import com.example.airbnb.model.event.AccommodationFullyBookedEvent;
 import com.example.airbnb.repository.AccommodationRepository;
 import com.example.airbnb.service.AccommodationService;
 import com.example.airbnb.service.CountryService;
@@ -58,9 +60,10 @@ public class AccommodationServiceImpl implements AccommodationService {
 
     @Override
     public Optional<Accommodation> save(AccommodationDTO accommodationDTO) {
+
         Accommodation accommodation=new Accommodation(
-                accommodationDTO.getName(), accommodationDTO.getCategory(),
-                this.hostService.findById(accommodationDTO.getHostId()).get(), accommodationDTO.getNumRooms());
+                accommodationDTO.getName(), accommodationDTO.getCategory(),this.hostService.findById(accommodationDTO.getHostId())
+        .get(), accommodationDTO.getNumRooms());
 
         this.accommodationRepository.save(accommodation);
         this.applicationEventPublisher.publishEvent(new AccommodationCreatedEvent(accommodation));
@@ -122,6 +125,25 @@ public class AccommodationServiceImpl implements AccommodationService {
     @Override
     public void onAccommodationDeleted() {
         System.out.println(" Accommodation deleted successfully");
+
+    }
+
+    @Override
+    public void onAccommodationFullyBooked() {
+        System.out.println("THIS ACCOMMODATION IS FULLY BOOKED");
+    }
+
+    @Override
+    public void mark(Long id) {
+        Accommodation accommodation= this.findById(id).get();
+
+        if(accommodation.getNumRooms()>0){
+            accommodation.setNumRooms(accommodation.getNumRooms()-1);
+            accommodationRepository.save(accommodation);
+        }
+        else{
+            this.applicationEventPublisher.publishEvent(new AccommodationFullyBookedEvent(accommodation));
+        }
 
     }
 

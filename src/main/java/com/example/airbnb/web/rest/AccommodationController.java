@@ -29,6 +29,7 @@ public class AccommodationController {
                 .orElseGet(() -> ResponseEntity.badRequest().build());
     }
 
+
     @PutMapping("/edit/{id}")
     public ResponseEntity<Accommodation> save(@PathVariable Long id, @RequestBody AccommodationDTO accommodationDto) {
         return this.accommodationService.edit(id, accommodationDto)
@@ -39,6 +40,13 @@ public class AccommodationController {
     @DeleteMapping("/delete/{id}")
     public ResponseEntity deleteById(@PathVariable Long id) {
         this.accommodationService.deleteById(id);
+        if (this.accommodationService.findById(id).isEmpty()) return ResponseEntity.ok().build();
+        return ResponseEntity.badRequest().build();
+    }
+
+    @PostMapping("mark-booked/{id}")
+    public ResponseEntity mark(@PathVariable Long id){
+         this.accommodationService.mark(id);
         if (this.accommodationService.findById(id).isEmpty()) return ResponseEntity.ok().build();
         return ResponseEntity.badRequest().build();
     }

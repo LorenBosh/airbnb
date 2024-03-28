@@ -23,5 +23,9 @@ public interface AccommodationService {
     void onAccommodationEdited();
     void onAccommodationDeleted();
 
+    void onAccommodationFullyBooked();
+
+    void mark(Long id);
+
 }
 
